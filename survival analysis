@@ -1,0 +1,47 @@
+# Reading the data
+rm(list=ls())
+setwd("D:/r")
+churndata <- read.csv("hr_churn.csv")
+head(churndata)
+
+table(churndata$left)
+
+summary(churndata$hours_spend_company)
+hist(churndata$hours_spend_company)
+library(e1071)
+skewness(churndata$hours_spend_company)
+kurtosis(churndata$hours_spend_company)
+
+
+# Creating Survival Object
+str(churndata)
+library(survival)
+churndata.Surv <- Surv(churndata$hours_spend_company, 
+                       as.numeric(churndata$left))
+
+churndata.Surv
+
+
+# Kaplan Meier Estimate of Survival
+churndata.survfit <- survfit(churndata.Surv~1)
+churndata.survfit
+
+summary(churndata.survfit)
+plot(churndata.survfit)
+
+print(churndata.survfit)
+print(churndata.survfit, print.rmean=TRUE)
+
+#"cumhaz" plots the cumulative hazard function
+plot(churndata.survfit, fun = 'cumhaz')
+
+
+new_surv <- survfit(churndata.Surv~churndata$salary)
+print(new_surv, print.rmean=TRUE)
+plot(survfit(churndata.Surv~churndata$salary))
+##significance test chisq
+survdiff(churndata.Surv~churndata$salary)
+survfit(churndata.Surv~churndata$Dept)
+summary(survfit(churndata.Surv~churndata$Dept))
+plot(survfit(churndata.Surv~churndata$Dept), xlab = "Time", ylab = "probability of survival", conf.int = FALSE)
+survdiff(churndata.Surv~churndata$Dept)
